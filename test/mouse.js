@@ -36,6 +36,16 @@ test('Move the mouse.', function(t)
 
 });
 
+test('Move the mouse to another screen.', function(t)
+{
+	t.plan(4);
+	t.ok(lastKnownPos = robot.getMousePos(), 'successfully retrieved mouse position (x=' + lastKnownPos.x + ', y=' + lastKnownPos.y + ').');
+	t.ok(robot.moveMouse(lastKnownPos.x - 100, lastKnownPos.y - 100) === 1, 'successfully moved the mouse (x=' + (lastKnownPos.x - 100) + ', y=' + (lastKnownPos.y - 100) + ').');
+	currentPos = robot.getMousePos();
+	t.ok(currentPos.x === lastKnownPos.x - 100, 'mousepos.x is correct.');
+	t.ok(currentPos.y === lastKnownPos.y - 100, 'mousepos.y is correct.');
+});
+
 test('Move the mouse smoothly.', function(t) 
 {
 	t.plan(6);

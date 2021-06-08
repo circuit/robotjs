@@ -76,10 +76,15 @@ static KeyNames key_names[] =
 	{ "f22",            K_F22 },
 	{ "f23",            K_F23 },
 	{ "f24",            K_F24 },
+	{ "capslock",       K_CAPSLOCK },
 	{ "command",        K_META },
 	{ "alt",            K_ALT },
+	{ "right_alt",      K_RIGHT_ALT },
 	{ "control",        K_CONTROL },
+	{ "left_control",   K_LEFT_CONTROL },
+	{ "right_control",  K_RIGHT_CONTROL },
 	{ "shift",          K_SHIFT },
+	{ "right_shift",    K_RIGHTSHIFT },
 	{ "space",          K_SPACE },
 	{ "printscreen",    K_PRINTSCREEN },
 	{ "insert",         K_INSERT },
@@ -98,6 +103,7 @@ static KeyNames key_names[] =
 	{ "audio_repeat",   K_AUDIO_REPEAT },
 	{ "audio_random",   K_AUDIO_RANDOM },
 
+	{ "numpad_lock",	K_NUMPAD_LOCK },
 	{ "numpad_0",		K_NUMPAD_0 },
 	{ "numpad_0",		K_NUMPAD_0 },
 	{ "numpad_1",		K_NUMPAD_1 },
@@ -109,6 +115,11 @@ static KeyNames key_names[] =
 	{ "numpad_7",		K_NUMPAD_7 },
 	{ "numpad_8",		K_NUMPAD_8 },
 	{ "numpad_9",		K_NUMPAD_9 },
+	{ "numpad_+",		K_NUMPAD_PLUS },
+	{ "numpad_-",		K_NUMPAD_MINUS },
+	{ "numpad_*",		K_NUMPAD_MULTIPLY },
+	{ "numpad_/",		K_NUMPAD_DIVIDE },
+	{ "numpad_.",		K_NUMPAD_DECIMAL },
 
 	{ "lights_mon_up",    K_LIGHTS_MON_UP },
 	{ "lights_mon_down",  K_LIGHTS_MON_DOWN },
@@ -154,7 +165,7 @@ int CheckKeyFlags(char* f, MMKeyFlags* flags)
 {
 	if (!flags) return -1;
 
-	if (strcmp(f, "alt") == 0)
+	if (strcmp(f, "alt") == 0 || strcmp(f, "right_alt") == 0)
 	{
 		*flags = MOD_ALT;
 	}
@@ -162,11 +173,11 @@ int CheckKeyFlags(char* f, MMKeyFlags* flags)
 	{
 		*flags = MOD_META;
 	}
-	else if(strcmp(f, "control") == 0)
+	else if(strcmp(f, "control") == 0 || strcmp(f, "right_control") == 0 || strcmp(f, "left_control") == 0)
 	{
 		*flags = MOD_CONTROL;
 	}
-	else if(strcmp(f, "shift") == 0)
+	else if(strcmp(f, "shift") == 0 || strcmp(f, "right_shift") == 0)
 	{
 		*flags = MOD_SHIFT;
 	}
@@ -198,14 +209,16 @@ int GetFlagsFromValue(v8::Local<v8::Value> value, MMKeyFlags* flags)
 		v8::Local<v8::Array> a = v8::Local<v8::Array>::Cast(value);
 		for (uint32_t i = 0; i < a->Length(); i++)
 		{
-			v8::Local<v8::Value> v(Nan::Get(a, i).ToLocalChecked());
-			if (!v->IsString()) return -2;
+			if (Nan::Has(a, i).FromJust()) {
+				v8::Local<v8::Value> v(Nan::Get(a, i).ToLocalChecked());
+				if (!v->IsString()) return -2;
 
-			MMKeyFlags f = MOD_NONE;
-			const int rv = GetFlagsFromString(v, &f);
-			if (rv) return rv;
+				MMKeyFlags f = MOD_NONE;
+				const int rv = GetFlagsFromString(v, &f);
+				if (rv) return rv;
 
-			*flags = (MMKeyFlags)(*flags | f);
+				*flags = (MMKeyFlags)(*flags | f);
+			}
 		}
 		return 0;
 	}
